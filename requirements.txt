@@ -1,0 +1,20 @@
+# FastAPI & Server
+fastapi==0.115.5
+uvicorn[standard]==0.32.1
+pydantic==2.10.1
+pydantic-settings==2.6.1
+
+# Database & ORM (PostgreSQL)
+sqlalchemy==2.0.36
+psycopg[binary]>=3.1.18
+psycopg2-binary==2.9.10
+alembic==1.14.0
+pgvector==0.3.6
+
+# Utilities & Data Scraping/Enrichment
+python-dotenv==1.0.1
+pillow==11.0.0
+requests>=2.31.0
+deep-translator>=1.11.4
+tqdm>=4.66.2
+
