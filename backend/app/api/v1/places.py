@@ -13,6 +13,7 @@ from app.services.place_service import (
     get_place_by_id,
     get_filter_options,
     recompute_scores,
+    get_similar_places,
 )
 
 router = APIRouter(prefix="/places", tags=["Places"])
@@ -59,6 +60,15 @@ def trigger_recompute_scores(db: Session = Depends(get_db)):
     """
     recompute_scores(db)
     return {"message": "Recommendation scores recomputed successfully"}
+
+
+@router.get("/{place_id}/similar", response_model=PlacesResponse)
+def similar_places(place_id: int, db: Session = Depends(get_db)):
+    """
+    Returns places with the same category or city, sorted by recommendation score.
+    """
+    similar = get_similar_places(db, place_id)
+    return PlacesResponse(total=len(similar), places=similar)
 
 
 @router.get("/{place_id}", response_model=PlaceDetail)

@@ -122,3 +122,25 @@ def get_filter_options(db: Session) -> dict:
         "categories": categories,
         "sub_categories": sub_categories,
     }
+
+
+def get_similar_places(db: Session, place_id: int, limit: int = 4) -> List[Place]:
+    """
+    Returns up to `limit` places that share the same category or city as the given place,
+    excluding the place itself, ordered by recommendation_score DESC.
+    """
+    place = db.query(Place).filter(Place.id == place_id).first()
+    if not place:
+        return []
+
+    return (
+        db.query(Place)
+        .filter(Place.id != place_id)
+        .filter(
+            (func.lower(Place.category) == place.category.lower())
+            | (func.lower(Place.city) == place.city.lower())
+        )
+        .order_by(Place.recommendation_score.desc())
+        .limit(limit)
+        .all()
+    )
