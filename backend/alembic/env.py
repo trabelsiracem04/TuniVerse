@@ -8,7 +8,8 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 from app.core.config import settings
-from app.db.base import Base  # imports all registered models
+from app.db.base import Base
+import app.models  # noqa: F401 - register models for autogenerate
 
 # Alembic Config object
 config = context.config

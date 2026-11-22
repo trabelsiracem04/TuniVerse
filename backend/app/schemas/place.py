@@ -32,3 +32,10 @@ class PlaceDetail(PlaceCard):
 class PlacesResponse(BaseModel):
     total: int
     places: List[PlaceCard]
+
+
+class FilterOptionsResponse(BaseModel):
+    cities: List[str]
+    categories: List[str]
+    sub_categories: List[str]
+
