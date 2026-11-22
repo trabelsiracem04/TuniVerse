@@ -1,8 +1,59 @@
 # 🏃 Sprint 2 — Step-by-Step Plan
 
 **Goal:** Build the entire Explore page — FilterBar, PlaceCard list, Leaflet map, and Place Detail page — wired to the Sprint 1 API.  
-**Stories:** US-1.2 (Place Cards List) + US-1.3 (Map with Dots) + US-3.1 (Place Detail Page)  
+**Stories:** US-1.2 (Place Cards List) + US-1.3 (Map with Dots) + US-3.1 (Place Detail Page) + US-3.2 (Similar Places)  
 **Output:** A fully functional Explore page at `/explore` where a user can filter Tunisian places, see them as cards and map markers, and click through to a detail page.
+
+---
+
+## What Sprint 1 Actually Delivered
+
+| Item | Status |
+|---|---|
+| `places` table in Supabase | ✅ Created via Alembic migration |
+| 1,807 Tunisian places seeded (6 categories, 1091 monuments, 262 nature, 150 cultural, 117 accommodation, 105 museum, 82 beach) | ✅ Done |
+| All places have `cover_image` (Wikimedia URLs), `latitude`, `longitude`, `rate`, `recommendation_score` | ✅ Done |
+| `GET /api/v1/places` with `category`, `sub_category`, `city`, `search` filters | ✅ Done |
+| `GET /api/v1/places/filters` for dropdown population | ✅ Done |
+| `GET /api/v1/places/{id}` with view_count tracking | ✅ Done |
+| `users`, `itineraries`, `conversations`, `bookmarks` tables | ❌ Not created — only `places` exists |
+| Frontend | ❌ Not started — all files are empty stubs |
+
+> **Sprint 2 starts from a working API + full DB.** There is no frontend code to build on — everything gets written from scratch.
+
+---
+
+## Work Split
+
+> Steps 1–3 are done **together** at the start (30 min, one machine) to give both teammates a working base to build on. After that, Ali and Racem work in parallel on separate branches and merge at the end.
+
+| Step | Who | What | SP |
+|---|---|---|---|
+| 1 — Scaffold | 👥 Together | Vite init, deps, Tailwind, vite.config.ts | — |
+| 2 — Router & skeletons | 👥 Together | main.tsx, App.tsx, page stubs | — |
+| 3 — Types & API client & hooks | 👥 Together | types/index.ts, config/api.ts, hooks/usePlaces.ts | — |
+| 4 — FilterBar | 👤 **Ali** | FilterBar component, filter badges, URL sync in ExplorePage | 5 SP |
+| 5 — PlaceCard & PlaceCardList | 👤 **Ali** | PlaceCard, PlaceCardList, skeletons, empty state | 4 SP |
+| 6 — Leaflet Map | 👤 **Racem** | LeafletMap component, CircleMarkers, FitBounds, popups | 6 SP |
+| 7 — Hover sync | 👤 **Racem** | Wire hoveredId between cards and map markers | 2 SP |
+| 8 — Similar places endpoint | 👤 **Racem** | `get_similar_places` service + `GET /places/:id/similar` route | 3 SP |
+| 9 — Place Detail page | 👤 **Ali** | PlaceDetailPage, hero gallery, mini-map, similar cards, back nav | 7 SP |
+| 10 — End-to-end test | 👥 Together | Go through the full checklist together | — |
+
+**Ali total: ~16 SP** (FilterBar + cards + detail page)  
+**Racem total: ~11 SP** (map + hover sync + similar endpoint)
+
+> The imbalance looks larger than it is because Steps 1–3 are shared setup (~2 SP each in practice). Ali's detail page is the heaviest single piece of work, but it's self-contained. Racem's map work has more moving parts technically (Leaflet API, FitBounds, marker styling).
+
+---
+
+## Parallel Work Strategy
+
+Steps 4–9 can run in parallel because the shared foundation (types, API client, hooks) is established first in Steps 1–3. The only integration point is the `hoveredId` state in `ExplorePage` — Racem's map and Ali's card list both read from it. The simplest way to handle this:
+
+1. Ali owns `src/pages/Explore/index.tsx` — she defines `hoveredId` state there and passes it down as props.
+2. Racem's `LeafletMap` component accepts `hoveredId` and `onHover` as props — no shared state management needed.
+3. When both are done, Ali merges the `LeafletMap` import into `ExplorePage`. One merge, one integration point.
 
 ---
 
@@ -10,19 +61,26 @@
 
 ```mermaid
 flowchart TD
-    S1["Step 1\nScaffold Frontend\n(Vite + React + Tailwind)"] --> S2["Step 2\nRouter + Pages\nSkeleton"]
-    S2 --> S3["Step 3\nAPI Client\n& Types"]
-    S3 --> S4["Step 4\nFilterBar\nComponent"]
-    S4 --> S5["Step 5\nPlaceCard &\nPlaceCardList"]
-    S5 --> S6["Step 6\nLeaflet Map\nwith Markers"]
-    S6 --> S7["Step 7\nCard ↔ Map\nHover Sync"]
-    S7 --> S8["Step 8\nPlace Detail\nPage"]
-    S8 --> S9["Step 9\nEnd-to-End\nTest"]
+    S1["Step 1–3\n👥 Together\nScaffold + Router\n+ Types + API"] --> A
+    S1 --> B
+
+    subgraph A["👤 Ali"]
+        A1["Step 4\nFilterBar"] --> A2["Step 5\nPlaceCard +\nPlaceCardList"]
+        A2 --> A3["Step 9\nPlace Detail\nPage"]
+    end
+
+    subgraph B["👤 Racem"]
+        B1["Step 6\nLeaflet Map\n+ Markers"] --> B2["Step 7\nHover Sync"]
+        B2 --> B3["Step 8\nSimilar Places\nEndpoint"]
+    end
+
+    A3 --> S9["Step 10\n👥 Together\nEnd-to-End Test"]
+    B3 --> S9
 ```
 
 ---
 
-## Step 1 — Scaffold the Frontend
+## Step 1 — Scaffold the Frontend 👥 Together
 
 ### 1.1 Initialize the Vite + React + TypeScript project
 
@@ -129,7 +187,7 @@ export default defineConfig({
 
 ---
 
-## Step 2 — Router and Page Skeletons
+## Step 2 — Router and Page Skeletons 👥 Together
 
 ### 2.1 Fill `src/main.tsx`
 
@@ -196,7 +254,7 @@ export default function PlaceDetailPage() {
 
 ---
 
-## Step 3 — API Client and TypeScript Types
+## Step 3 — API Client and TypeScript Types 👥 Together
 
 ### 3.1 Fill `src/types/index.ts`
 
@@ -253,6 +311,9 @@ const api = axios.create({
 });
 
 export const placesApi = {
+  // limit=100 is the API max. With 1807 places in the DB, unfiltered queries
+  // return the top 100 by recommendation_score — good enough for the MVP map.
+  // Pagination (offset) is wired but not exposed in the UI yet (Sprint 5).
   getPlaces: (filters: Partial<PlaceFilters>, limit = 100, offset = 0) =>
     api
       .get<PlacesResponse>("/places", {
@@ -308,7 +369,7 @@ export function useFilterOptions() {
 
 ---
 
-## Step 4 — FilterBar Component
+## Step 4 — FilterBar Component 👤 Ali
 
 ### 4.1 Create `src/components/FilterBar/index.tsx`
 
@@ -440,7 +501,7 @@ function FilterBadge({ label, onRemove }: { label: string; onRemove: () => void 
 
 ---
 
-## Step 5 — PlaceCard and PlaceCardList
+## Step 5 — PlaceCard and PlaceCardList 👤 Ali
 
 ### 5.1 Create `src/components/PlaceCard/index.tsx`
 
@@ -451,13 +512,14 @@ import clsx from "clsx";
 import type { PlaceCard as PlaceCardType } from "../../types";
 
 const CATEGORY_COLORS: Record<string, string> = {
-  beach:       "bg-blue-100 text-blue-700",
-  monument:    "bg-amber-100 text-amber-700",
-  museum:      "bg-purple-100 text-purple-700",
-  nature:      "bg-green-100 text-green-700",
-  cultural:    "bg-rose-100 text-rose-700",
-  restaurant:  "bg-orange-100 text-orange-700",
-  wellness:    "bg-teal-100 text-teal-700",
+  beach:         "bg-blue-100 text-blue-700",
+  monument:      "bg-amber-100 text-amber-700",
+  museum:        "bg-purple-100 text-purple-700",
+  nature:        "bg-green-100 text-green-700",
+  cultural:      "bg-rose-100 text-rose-700",
+  accommodation: "bg-indigo-100 text-indigo-700",
+  restaurant:    "bg-orange-100 text-orange-700",
+  wellness:      "bg-teal-100 text-teal-700",
 };
 
 interface PlaceCardProps {
@@ -677,7 +739,7 @@ export default function ExplorePage() {
 
 ---
 
-## Step 6 — Leaflet Map with Markers
+## Step 6 — Leaflet Map with Markers 👤 Racem
 
 ### 6.1 Add Leaflet CSS to `src/main.tsx`
 
@@ -790,7 +852,7 @@ export default function LeafletMap({ places, hoveredId, onHover }: LeafletMapPro
 
 ---
 
-## Step 7 — Card ↔ Map Hover Synchronization
+## Step 7 — Card ↔ Map Hover Synchronization 👤 Racem
 
 The sync is already wired: both `PlaceCardList` and `LeafletMap` receive the same `hoveredId` state from `ExplorePage` and the same `onHover` setter. Here's exactly what happens:
 
@@ -807,9 +869,11 @@ No extra work is needed — this is handled by the shared `hoveredId` state you 
 
 ---
 
-## Step 8 — Place Detail Page
+## Step 8 — Place Detail Page 👤 Racem (backend) + 👤 Ali (frontend)
 
-### 8.1 Add `GET /api/v1/places/:id/similar` to the backend
+### 8.1–8.3 — Similar Places Backend 👤 Racem
+
+Racem adds the endpoint while Ali is building the detail page UI — no dependency between the two until integration.
 
 This endpoint is needed for the "You might also like" section. Add it to `backend/app/services/place_service.py`:
 
@@ -853,14 +917,14 @@ def similar_places(place_id: int, db: Session = Depends(get_db)):
 
 > Add this route **before** `GET /{place_id}` in `places.py` to avoid FastAPI treating `"similar"` as an integer ID.
 
-### 8.2 Add `getPlaceSimilar` to the API client (`src/config/api.ts`)
+### 8.2 Add `getPlaceSimilar` to the API client (`src/config/api.ts`) 👤 Ali
 
 ```ts
 getPlaceSimilar: (id: number) =>
   api.get<PlacesResponse>(`/places/${id}/similar`).then((r) => r.data),
 ```
 
-### 8.3 Add `useSimilarPlaces` hook to `src/hooks/usePlaces.ts`
+### 8.3 Add `useSimilarPlaces` hook to `src/hooks/usePlaces.ts` 👤 Ali
 
 ```ts
 export function useSimilarPlaces(id: number) {
@@ -872,7 +936,7 @@ export function useSimilarPlaces(id: number) {
 }
 ```
 
-### 8.4 Fill `src/pages/PlaceDetail/index.tsx`
+### 8.4 Fill `src/pages/PlaceDetail/index.tsx` 👤 Ali
 
 ```tsx
 import { useParams, useNavigate, useLocation } from "react-router-dom";
@@ -1070,7 +1134,7 @@ function DetailSkeleton() {
 
 ---
 
-## Step 9 — End-to-End Test Checklist
+## Step 9 — End-to-End Test Checklist 👥 Together
 
 Run the backend and frontend together:
 
