@@ -24,7 +24,8 @@ import requests
 BASE_DIR = Path(__file__).parent.parent
 INPUT_FILE = BASE_DIR / "processed" / "places_final.json"
 HOTELS_FILE = BASE_DIR / "processed" / "hotels.json"
-OUTPUT_FILE = BASE_DIR / "processed" / "step2_places.json"
+OUTPUT_FILE = BASE_DIR / "processed" / "attractions.json"
+MASTER_FILE = BASE_DIR / "processed" / "places_master.json"
 
 HEADERS = {
     "User-Agent": "TuniVerse/1.0 (academic project ENET'Com; tuniverse-bot)"
@@ -263,7 +264,7 @@ def get_rate_and_score(name: str, category: str, subcat: str) -> tuple[float, fl
     return rate, rec_score
 
 
-def run_step2(is_test=False):
+def format_places(is_test=False):
     print("=" * 65)
     print(f"🏛️ STEP 2: Enriching Tourist Places (Test Mode: {is_test})")
     print("=" * 65)
@@ -342,14 +343,26 @@ def run_step2(is_test=False):
         if idx % 100 == 0 or is_test:
             print(f"[{idx}] ✅ {name} ({city}, {region}) | {cat}/{subcat} | {rate}★ | {cost_est}")
 
-    # Save output
+    # 1. Save Attractions Dataset
     OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         json.dump(final_places, f, ensure_ascii=False, indent=2)
 
+    # 2. Build Unified Master Dataset (Hotels 1..117 + Attractions 118+)
+    master_places = []
+    if HOTELS_FILE.exists():
+        with open(HOTELS_FILE, "r", encoding="utf-8") as f:
+            hotels = json.load(f)
+            master_places.extend(hotels)
+    master_places.extend(final_places)
+
+    with open(MASTER_FILE, "w", encoding="utf-8") as f:
+        json.dump(master_places, f, ensure_ascii=False, indent=2)
+
     print("\n" + "─" * 65)
-    print(f"🎉 Step 2 Completed! Processed {len(final_places)} places.")
-    print(f"📄 Output File: {OUTPUT_FILE}")
+    print(f"🎉 Dataset Formatting Completed! ({len(final_places)} attractions formatted)")
+    print(f"📄 Attractions Dataset: {OUTPUT_FILE.name}")
+    print(f"📄 Unified Master Seed: {MASTER_FILE.name} (Total: {len(master_places)} places)")
 
     if final_places:
         print("\n🔍 Verification of First Entry:")
@@ -358,4 +371,4 @@ def run_step2(is_test=False):
 
 if __name__ == "__main__":
     test_mode = "--test" in sys.argv
-    run_step2(is_test=test_mode)
+    format_places(is_test=test_mode)
