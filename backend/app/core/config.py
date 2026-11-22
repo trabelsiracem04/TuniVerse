@@ -1,9 +1,9 @@
 ﻿from pathlib import Path
 from pydantic_settings import BaseSettings
 
-# config.py is at: TuniVerse/backend/app/core/config.py
-# .parent x4    → TuniVerse/  (project root where .env lives)
-ENV_FILE = Path(__file__).resolve().parent.parent.parent.parent / ".env"
+BACKEND_ENV = Path(__file__).resolve().parent.parent.parent / ".env"
+ROOT_ENV = Path(__file__).resolve().parent.parent.parent.parent / ".env"
+ENV_FILE = BACKEND_ENV if BACKEND_ENV.exists() else ROOT_ENV
 
 
 class Settings(BaseSettings):
