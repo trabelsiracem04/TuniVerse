@@ -45,11 +45,12 @@ pip install -r requirements.txt
 
 ### 1.3 Fill `.env.example` → copy to `.env`
 ```env
-DATABASE_URL=postgresql://postgres:password@localhost:5432/tuniverse
+DATABASE_URL=postgresql://postgres.PROJECT_REF:PASSWORD@aws-X-REGION.pooler.supabase.com:5432/postgres
 SECRET_KEY=your-secret-key-here
 ENVIRONMENT=development
 ```
-Then: `cp .env.example .env` (and fill in your real Postgres credentials)
+> **DATABASE_URL** comes from Supabase → Connect button → Session tab → copy the URI and replace `[YOUR-PASSWORD]`.
+> Both team members use the **exact same DATABASE_URL** in their own `.env` file.
 
 ### 1.4 Fill `backend/app/core/config.py`
 ```python
@@ -164,18 +165,14 @@ class Base(DeclarativeBase):
 
 ## Step 3 — Run Alembic Migration
 
-### 3.1 Configure `alembic.ini`
-In the root `backend/` folder, set:
-```ini
-sqlalchemy.url = postgresql://postgres:password@localhost:5432/tuniverse
-```
-Or better, load from env — in `backend/alembic/env.py`:
+### 3.1 Configure `alembic.ini` & `env.py`
+In `backend/alembic/env.py`, the database URL is read dynamically from `.env` via `settings.DATABASE_URL` (pointing to Supabase):
 ```python
 from app.core.config import settings
 config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
 ```
 
-Also in `env.py`, set target metadata:
+Also ensure target metadata is set to `Base.metadata`:
 ```python
 from app.db.base import Base
 target_metadata = Base.metadata
@@ -187,12 +184,12 @@ cd backend
 alembic revision --autogenerate -m "create places table"
 ```
 
-### 3.3 Apply the migration
+### 3.3 Apply the migration to Supabase
 ```bash
 alembic upgrade head
 ```
 
-**✅ Check:** Connect to your Postgres DB and run `\dt` — you should see the `places` table.
+**✅ Check:** Open your **Supabase Dashboard → Table Editor**, and verify that the `places` table is visible with all its columns!
 
 ---
 
@@ -210,11 +207,14 @@ class PlaceCard(BaseModel):
     city: str
     region: str
     category: str
+    sub_category: Optional[str] = None
     short_desc: str
-    cover_image: Optional[str]
+    cover_image: Optional[str] = None
     latitude: float
     longitude: float
-    recommendation_score: float
+    rate: float = 0.0
+    view_count: int = 0
+    recommendation_score: float = 0.0
 
     class Config:
         from_attributes = True
@@ -223,9 +223,7 @@ class PlaceDetail(PlaceCard):
     """Full data for the detail page"""
     description: str
     images: List[str] = []
-    cost_estimate: Optional[str]
-    opening_hours: Optional[str]
-    visit_duration: Optional[str]
+    cost_estimate: Optional[str] = None
 
 class PlacesResponse(BaseModel):
     total: int
@@ -234,11 +232,10 @@ class PlacesResponse(BaseModel):
 
 ---
 
-## Step 5 — Seed the Database (30+ Tunisian Places)
+## Step 5 — Seed the Database (Populated on Supabase)
 
-### 5.1 Create `data/places_seed.json`
-Collect at least 30 real places across different categories and cities.
-Structure each entry like:
+### 5.1 Dataset Schema
+Structure for places entries:
 ```json
 [
   {
@@ -246,20 +243,21 @@ Structure each entry like:
     "city": "El Jem",
     "region": "Mahdia",
     "category": "monument",
+    "sub_category": "roman",
     "short_desc": "One of the best-preserved Roman amphitheaters in the world.",
     "description": "The Amphitheatre of El Djem is a Roman colosseum built in 238 AD...",
     "cover_image": "https://upload.wikimedia.org/wikipedia/commons/.../El_Jem.jpg",
     "latitude": 35.2963,
     "longitude": 10.7071,
     "cost_estimate": "8 TND",
-    "opening_hours": "8h–17h daily",
-    "visit_duration": "1–2 hours"
+    "rate": 4.8
   },
   {
     "name": "Medina of Tunis",
     "city": "Tunis",
     "region": "Tunis",
-    "category": "monument",
+    "category": "cultural",
+    "sub_category": "medina",
     ...
   }
 ]
@@ -388,17 +386,26 @@ app.include_router(places_router, prefix="/api/v1")
 
 ---
 
-## Step 7 — Recommendation Score Logic
+## Step 7 — Recommendation Score Logic (Placeholder for Teammate)
 
-The score combines **two signals** from the updated schema:
-- `rate` — average rating (0.0–5.0), normalized → `rate / 5.0`
-- `view_count` — popularity, normalized → `view_count / max_view_count`
+A dedicated module has been scaffolded in `backend/app/services/place_service.py` with clear placeholders:
+- `compute_place_score(place, **kwargs)`: Computes the rank for a single place.
+- `recompute_scores(db)`: Batch updates scores across all places.
 
-**Formula:**
+### 7.1 Placeholders & Inputs Available
+Your teammate can easily plug in any formula or model using the attributes available on each `place`:
+* `place.rate`: Average rating (0.0 to 5.0)
+* `place.view_count`: Click/popularity counter
+* `place.category` & `place.sub_category`: Classification tags
+* `place.city`: Location
+* Optional context (user history, preferences, session data)
 
-$$\text{recommendation\_score} = 0.6 \times \frac{\text{rate}}{5.0} + 0.4 \times \frac{\text{view\_count}}{\text{max\_view\_count}}$$
-
-> This means a **highly rated place** (5★, few views) still ranks well, and a **very popular place** (many views, modest rating) also surfaces — balanced by the 60/40 weights.
+```python
+def compute_place_score(place: Place, **kwargs) -> float:
+    # >>> WRITE CUSTOM RECOMMENDATION ALGORITHM HERE <<<
+    # Temporary baseline placeholder:
+    return round((place.rate or 0.0) / 5.0, 4)
+```
 
 ### 7.1 Increment `view_count` on each detail fetch
 In `backend/app/services/place_service.py`:
@@ -471,15 +478,15 @@ http://localhost:8000/docs
 
 | Deliverable | Done? |
 |---|---|
-| `requirements.txt` filled and installed | 🔲 |
-| `Place` model with all fields (category, city, lat, lng, score, view_count…) | 🔲 |
-| Alembic migration applied, `places` table exists in DB | 🔲 |
-| `places_seed.json` with 30+ real Tunisian places | 🔲 |
-| Seed script runs and DB is populated | 🔲 |
-| `GET /api/v1/places` with `?category` and `?city` filters | 🔲 |
-| Results sorted by `recommendation_score DESC` | 🔲 |
-| `GET /api/v1/places/:id` increments `view_count` and updates score | 🔲 |
-| All endpoints tested and passing in Swagger | 🔲 |
+| `requirements.txt` filled and installed | ✅ |
+| `Place` model with all fields (category, sub_category, city, lat, lng, score, rate, view_count…) | ✅ |
+| Alembic migration applied, `places` table exists on Supabase | ✅ |
+| Data seeded in Supabase (117 places populated across 17 cities) | ✅ |
+| `GET /api/v1/places` with `?category=`, `?sub_category=`, `?city=`, and `?search=` filters | ✅ |
+| `GET /api/v1/places/filters` for dynamic filter options (cities, categories) | ✅ |
+| Results sorted by `recommendation_score DESC` | ✅ |
+| `GET /api/v1/places/:id` increments `view_count` and updates score | ✅ |
+| All endpoints tested and passing | ✅ |
 
 ---
 

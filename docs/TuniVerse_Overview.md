@@ -8,6 +8,7 @@
 > **MVP Scope** — The current build targets a Minimum Viable Product (MVP).
 > - 🌐 **English only** (FR/AR multilingual support deferred to v2)
 > - 🐳 **No Docker** — services run locally without containerization
+> - 🗄️ **Database hosted on Supabase** — shared cloud PostgreSQL, both team members connect to the same instance
 > - All other features below apply unless marked *(v2)*
 
 ---
@@ -133,7 +134,7 @@ flowchart TD
 |---|---|
 | **Frontend** | React (Vite), TypeScript, Tailwind CSS, shadcn/ui |
 | **Backend** | Python, FastAPI |
-| **Database** | PostgreSQL + **pgvector** extension |
+| **Database** | **Supabase** (hosted PostgreSQL 19 + pgvector extension) |
 | **AI / RAG** | LLM + LlamaIndex or LangChain |
 | **Maps** | Leaflet.js / OpenStreetMap |
 | **Auth** | JWT + bcrypt/pwdlib (password hashing) |
@@ -213,7 +214,7 @@ flowchart LR
 | Phase | Activities | Deliverable |
 |---|---|---|
 | ✅ 1 | Requirements, DB schema, wireframes | This document (Cahier des Charges) |
-| 🔲 2 | Collect & structure Tunisian tourism data, generate vector embeddings | Populated PostgreSQL + pgvector DB |
+| 🔲 2 | Collect & structure Tunisian tourism data, generate vector embeddings | Populated Supabase DB (PostgreSQL + pgvector) |
 | 🔲 3 | FastAPI REST endpoints, JWT auth, RAG pipeline, itinerary service | Functional backend with Swagger docs |
 | 🔲 4 | React pages: Landing, Explore, Chat, Planner, Map, Dashboard | Multilingual React app |
 | 🔲 5 | Connect frontend ↔ backend, multilingual RTL, RAG accuracy tests | Full integrated prototype |
@@ -226,7 +227,7 @@ flowchart LR
 ### 1. Tourism Data Collection (Phase 2)
 - Collect structured data for Tunisian attractions: name, region, category, GPS, cost, description
 - Generate **vector embeddings** for each entry (using an embedding model)
-- Populate PostgreSQL with the `places` table + pgvector index
+- Populate the **Supabase** `places` table (use Supabase Table Editor or the seed script)
 
 ### 2. Backend (Phase 3)
 - Set up **FastAPI** app with Alembic migrations

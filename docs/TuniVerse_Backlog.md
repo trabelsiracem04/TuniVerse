@@ -49,7 +49,7 @@ flowchart LR
 | T1.1.2 | Add `category` and `city` indexed columns to `Place` SQLAlchemy model | Backend | 2 |
 | T1.1.3 | Build `FilterBar` React component with dropdowns/chips for category & city | Frontend | 3 |
 | T1.1.4 | Wire filter state to API call with debounced re-fetch on change | Frontend | 2 |
-| T1.1.5 | Seed the DB with at least 30 real Tunisian places across 5+ categories | Data | 5 |
+| T1.1.5 | Seed the Supabase DB with at least 30 real Tunisian places across 5+ categories | Data | 5 |
 
 **Story Points Total: 15** | **Priority: 🔴 Must Have**
 
@@ -180,8 +180,8 @@ flowchart LR
 **Technical Tasks:**
 | # | Task | Layer | SP |
 |---|---|---|---|
-| T2.2.1 | Set up pgvector extension and add `embedding` vector column to `Place` model | Backend | 3 |
-| T2.2.2 | Generate and store embeddings for all places in the DB (batch script) | Data/Backend | 5 |
+| T2.2.1 | Enable pgvector extension on Supabase and add `embedding` vector column to `Place` model | Backend | 3 |
+| T2.2.2 | Generate and store embeddings for all places in the Supabase DB (batch script) | Data/Backend | 5 |
 | T2.2.3 | Build RAG retrieval function: embed query → cosine similarity search → top-K places | Backend | 5 |
 | T2.2.4 | Build LLM prompt template with retrieved context + system instructions | Backend | 3 |
 | T2.2.5 | Implement SSE streaming endpoint `POST /api/v1/chat/stream` | Backend | 5 |
@@ -225,7 +225,7 @@ flowchart LR
 
 **Acceptance Criteria:**
 - [ ] Route: `/place/:id` — navigates to the detail page
-- [ ] Page includes: **hero image gallery** (multiple photos), **place name**, **category badge**, **city/region**, **full description**, **practical info** (opening hours, estimated cost, visit duration)
+- [ ] Page includes: **hero image gallery** (multiple photos), **place name**, **category/sub-category badge**, **city/region**, **full description**, **rating**, **estimated cost**
 - [ ] A **back button** returns to the Explore page with filters preserved
 - [ ] The page has a **small embedded map** showing only that place's location
 - [ ] Page is fully responsive on mobile
@@ -234,7 +234,7 @@ flowchart LR
 | # | Task | Layer | SP |
 |---|---|---|---|
 | T3.1.1 | Create `GET /api/v1/places/:id` endpoint returning full place details | Backend | 2 |
-| T3.1.2 | Add fields to `Place` model: `images[]`, `opening_hours`, `visit_duration_min`, `cost_estimate` | Backend | 2 |
+| T3.1.2 | Support full detail fields: `images[]`, `sub_category`, `rate`, `cost_estimate` | Backend | 2 |
 | T3.1.3 | Build `PlaceDetailPage` React component and register `/place/:id` route | Frontend | 3 |
 | T3.1.4 | Build image gallery / carousel component | Frontend | 3 |
 | T3.1.5 | Embed a small Leaflet map with single marker for this place | Frontend | 2 |

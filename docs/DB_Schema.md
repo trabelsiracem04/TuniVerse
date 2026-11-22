@@ -1,8 +1,13 @@
 # 🗄️ TuniVerse — Database Schema
 
-> **Engine:** PostgreSQL + pgvector extension
+> **Engine:** PostgreSQL 19 hosted on **Supabase** (https://supabase.com)
 > **ORM:** SQLAlchemy 2.0
 > **Migration:** Alembic
+> **Connection:** Session pooler — both team members use the same `DATABASE_URL` from Supabase
+
+> [!NOTE]
+> The `places` table is already created on Supabase via `alembic upgrade head`.
+> Other tables will be added in later sprints as new models are registered in `base.py`.
 
 ---
 
@@ -264,9 +269,9 @@ erDiagram
 
 | Sprint | Tables to create | Notes |
 |---|---|---|
-| **Sprint 1** | `places` *(without `embedding`)* | Core data + filter API |
+| **Sprint 1** | `places` *(without `embedding`)* ✅ **Done on Supabase** | Core data + filter API |
 | **Sprint 2** | — | Frontend uses existing schema |
-| **Sprint 3** | Add `embedding` to `places`, `conversations`, `messages` | RAG pipeline |
+| **Sprint 3** | Add `embedding` to `places`, `conversations`, `messages` | RAG pipeline — enable pgvector on Supabase |
 | **Sprint 4** | `users` | JWT auth |
 | **Sprint 4** | `bookmarks`, `itineraries`, `itinerary_places` | Saving features |
 

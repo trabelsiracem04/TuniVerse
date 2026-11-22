@@ -18,7 +18,7 @@ flowchart TD
         SSE["SSE Streaming\nEndpoint"]
     end
 
-    subgraph DB["🗄️ Database (PostgreSQL)"]
+    subgraph DB["🗄️ Database (Supabase — hosted PostgreSQL 19)"]
         PG["Relational Tables\nusers · places · itineraries\nconversations · bookmarks"]
         VEC["pgvector\nplace embeddings"]
     end
@@ -59,7 +59,8 @@ flowchart TD
 | **Pattern** | Monolith (MVP) | Simpler to build, deploy, debug — split into services in v2 |
 | **API style** | REST + SSE | REST for CRUD, SSE for streaming chat responses |
 | **Auth** | Stateless JWT | No server-side session storage needed |
-| **Vector store** | pgvector (in Postgres) | Avoids a separate vector DB (Pinecone/Weaviate) for MVP |
+| **Vector store** | pgvector (in Supabase) | Avoids a separate vector DB (Pinecone/Weaviate) for MVP — pgvector is built into Supabase |
+| **Database hosting** | Supabase | Shared cloud DB — both team members connect to the same instance, no local Postgres needed |
 | **Streaming** | SSE (Server-Sent Events) | Simpler than WebSockets for one-way LLM token streaming |
 | **Frontend** | SPA (Single Page App) | Fast navigation, map stays alive between route changes |
 
@@ -311,7 +312,8 @@ flowchart LR
 | Message queue (Celery, RQ) | No async background jobs needed in MVP |
 | WebSockets | SSE is sufficient for one-way LLM streaming |
 | Docker | MVP runs locally |
+| Local PostgreSQL | Replaced by Supabase — shared cloud DB |
 | FR / AR multilingual | Deferred to v2 |
 | Payment / booking | Out of scope entirely |
 | Native mobile app | Web-only |
-| Separate vector DB (Pinecone) | pgvector handles it at MVP scale |
+| Separate vector DB (Pinecone) | pgvector on Supabase handles it at MVP scale |
