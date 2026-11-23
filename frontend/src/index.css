@@ -1,3 +1,22 @@
 ﻿@tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Leaflet custom pin styling */
+.airbnb-map-pin {
+  background: transparent !important;
+  border: none !important;
+}
+
+/* Leaflet floating hover tooltip card */
+.tuniverse-map-tooltip {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.tuniverse-map-tooltip::before {
+  display: none !important;
+}
+

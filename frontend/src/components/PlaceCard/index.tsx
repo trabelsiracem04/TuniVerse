@@ -1,5 +1,5 @@
 import { useNavigate, useLocation } from "react-router-dom";
-import { MapPin, Star } from "lucide-react";
+import { MapPin, Star, Eye } from "lucide-react";
 import clsx from "clsx";
 import type { PlaceCard as PlaceCardType } from "../../types";
 
@@ -28,10 +28,10 @@ export default function PlaceCard({ place, isHovered, onHover }: PlaceCardProps)
   return (
     <div
       className={clsx(
-        "flex gap-3 p-3 rounded-xl cursor-pointer transition-all border",
+        "flex gap-4 p-3.5 rounded-2xl cursor-pointer transition-all border",
         isHovered
-          ? "border-primary shadow-md bg-primary/5 scale-[1.01]"
-          : "border-transparent hover:border-gray-200 hover:shadow-sm bg-white"
+          ? "border-primary shadow-lg bg-primary/5 scale-[1.01]"
+          : "border-gray-100 hover:border-gray-200 hover:shadow-md bg-white"
       )}
       onMouseEnter={() => onHover(place.id)}
       onMouseLeave={() => onHover(null)}
@@ -42,51 +42,69 @@ export default function PlaceCard({ place, isHovered, onHover }: PlaceCardProps)
       }
     >
       {/* Thumbnail */}
-      <div className="w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden bg-gray-100">
+      <div className="w-28 h-28 sm:w-32 sm:h-32 flex-shrink-0 rounded-xl overflow-hidden bg-gray-100 shadow-sm relative">
         {place.cover_image ? (
           <img
             src={place.cover_image}
             alt={place.name}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
             onError={(e) => {
               (e.target as HTMLImageElement).src = "/placeholder.jpg";
             }}
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-gray-300 text-2xl">
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-200 text-gray-400 text-3xl">
             🏛️
           </div>
         )}
       </div>
 
       {/* Content */}
-      <div className="flex flex-col justify-between flex-1 min-w-0">
+      <div className="flex flex-col justify-between flex-1 min-w-0 py-0.5">
         <div>
-          <div className="flex items-start justify-between gap-1">
-            <h3 className="font-semibold text-gray-900 text-sm leading-tight truncate">
+          <div className="flex items-start justify-between gap-2">
+            <h3 className="font-semibold text-gray-900 text-base leading-snug truncate" title={place.name}>
               {place.name}
             </h3>
             <span
               className={clsx(
-                "text-xs font-medium px-2 py-0.5 rounded-full whitespace-nowrap",
+                "text-xs font-medium px-2.5 py-0.5 rounded-full whitespace-nowrap capitalize",
                 categoryColor
               )}
             >
               {place.category}
             </span>
           </div>
-          <p className="text-xs text-gray-500 mt-0.5 line-clamp-2">{place.short_desc}</p>
+
+          {place.sub_category && (
+            <p className="text-xs text-primary/80 font-medium capitalize mt-0.5">
+              {place.sub_category}
+            </p>
+          )}
+
+          <p className="text-xs text-gray-600 mt-1 line-clamp-2 leading-relaxed">
+            {place.short_desc}
+          </p>
         </div>
 
-        <div className="flex items-center gap-3 mt-1">
-          <span className="flex items-center gap-1 text-xs text-gray-500">
-            <MapPin size={11} />
+        {/* Bottom meta row */}
+        <div className="flex flex-wrap items-center gap-3 mt-2 text-xs">
+          <span className="flex items-center gap-1 text-gray-500 font-medium">
+            <MapPin size={12} className="text-gray-400" />
             {place.city}
           </span>
+
           {place.rate > 0 && (
-            <span className="flex items-center gap-1 text-xs text-amber-600 font-medium">
-              <Star size={11} className="fill-amber-400 stroke-amber-400" />
+            <span className="flex items-center gap-1 font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md">
+              <Star size={12} className="fill-amber-400 stroke-amber-400" />
               {place.rate.toFixed(1)}
+            </span>
+          )}
+
+          {place.view_count > 0 && (
+            <span className="flex items-center gap-1 text-gray-400 ml-auto">
+              <Eye size={12} />
+              {place.view_count.toLocaleString()}
             </span>
           )}
         </div>

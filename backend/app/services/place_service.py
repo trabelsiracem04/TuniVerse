@@ -57,7 +57,7 @@ def get_places(
     sub_category: Optional[str] = None,
     city: Optional[str] = None,
     search: Optional[str] = None,
-    limit: int = 50,
+    limit: int = 100,
     offset: int = 0,
 ) -> Tuple[int, List[Place]]:
     """

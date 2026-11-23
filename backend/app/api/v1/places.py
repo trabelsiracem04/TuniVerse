@@ -25,7 +25,7 @@ def list_places(
     sub_category: Optional[str] = Query(None, description="Filter by sub-category (e.g. hotel, roman, sandy)"),
     city: Optional[str] = Query(None, description="Filter by city/governorate (e.g. Hammamet, Tunis)"),
     search: Optional[str] = Query(None, description="Search keyword in name, short description, or city"),
-    limit: int = Query(50, ge=1, le=100, description="Number of results to return"),
+    limit: int = Query(100, ge=1, le=500, description="Number of results to return"),
     offset: int = Query(0, ge=0, description="Offset for pagination"),
     db: Session = Depends(get_db),
 ):

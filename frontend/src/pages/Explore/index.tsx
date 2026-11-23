@@ -45,7 +45,7 @@ export default function ExplorePage() {
       <div className="flex flex-1 overflow-hidden">
 
         {/* Left panel — card list */}
-        <aside className="w-96 flex-shrink-0 border-r overflow-hidden flex flex-col">
+        <aside className="w-full lg:w-[44%] xl:w-[42%] 2xl:w-[40%] min-w-[460px] max-w-[760px] flex-shrink-0 border-r overflow-hidden flex flex-col bg-white shadow-sm">
           <PlaceCardList
             places={places}
             hoveredId={hoveredId}

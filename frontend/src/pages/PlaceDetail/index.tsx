@@ -43,7 +43,9 @@ export default function PlaceDetailPage() {
       </div>
     );
 
-  const allImages = [...(place.cover_image ? [place.cover_image] : []), ...place.images];
+  const allImages = Array.from(
+    new Set([...(place.cover_image ? [place.cover_image] : []), ...(place.images || [])])
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -62,8 +64,17 @@ export default function PlaceDetailPage() {
 
       <div className="max-w-4xl mx-auto px-4 py-6 space-y-8">
         {/* Hero image gallery */}
-        {allImages.length > 0 && (
-          <div className="grid grid-cols-3 gap-2 h-72 rounded-2xl overflow-hidden">
+        {allImages.length === 1 && (
+          <div className="h-72 rounded-2xl overflow-hidden shadow">
+            <img
+              src={allImages[0]}
+              alt={place.name}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        )}
+        {allImages.length > 1 && (
+          <div className="grid grid-cols-3 gap-2 h-72 rounded-2xl overflow-hidden shadow">
             <img
               src={allImages[0]}
               alt={place.name}

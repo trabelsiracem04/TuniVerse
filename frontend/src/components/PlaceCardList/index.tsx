@@ -51,12 +51,21 @@ export default function PlaceCardList({
 
 function SkeletonCard() {
   return (
-    <div className="flex gap-3 p-3 rounded-xl border border-gray-100 animate-pulse">
-      <div className="w-20 h-20 rounded-lg bg-gray-200 flex-shrink-0" />
-      <div className="flex flex-col gap-2 flex-1">
-        <div className="h-4 bg-gray-200 rounded w-3/4" />
-        <div className="h-3 bg-gray-200 rounded w-full" />
-        <div className="h-3 bg-gray-200 rounded w-2/3" />
+    <div className="flex gap-4 p-3.5 rounded-2xl border border-gray-100 bg-white animate-pulse">
+      <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-xl bg-gray-200 flex-shrink-0" />
+      <div className="flex flex-col justify-between flex-1 py-1">
+        <div className="space-y-2">
+          <div className="flex justify-between items-center">
+            <div className="h-4 bg-gray-200 rounded w-1/2" />
+            <div className="h-4 bg-gray-200 rounded-full w-16" />
+          </div>
+          <div className="h-3 bg-gray-200 rounded w-full" />
+          <div className="h-3 bg-gray-200 rounded w-4/5" />
+        </div>
+        <div className="flex gap-3">
+          <div className="h-3 bg-gray-200 rounded w-16" />
+          <div className="h-3 bg-gray-200 rounded w-12" />
+        </div>
       </div>
     </div>
   );

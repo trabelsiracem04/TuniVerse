@@ -9,8 +9,9 @@ Scripts for curating, formatting, seeding, and testing the TuniVerse knowledge b
 | Script | Purpose | Usage Command |
 | :--- | :--- | :--- |
 | **`enrich_place_descriptions.py`** | Scrapes French Wikipedia summaries and translates to English with academic quota rotation. | `python data/scripts/enrich_place_descriptions.py --start el-Mida` |
+| **`enrich_place_images.py`** | Fixes place images, fetches authentic Wikimedia photos, and eliminates duplicate fallback pictures. | `python data/scripts/enrich_place_images.py` |
 | **`format_places_dataset.py`** | Formats tourist places into the exact 16-field schema (IDs 118+, regions, AMVPPC tickets, ratings). | `python data/scripts/format_places_dataset.py` |
-| **`seed_hotels.py`** | Seeds the 117 curated accommodations into the Supabase `places` table. | `python data/scripts/seed_hotels.py` |
+| **`seed_database.py`** | Universal seeder for Supabase PostgreSQL (seeds hotels, attractions, or complete master catalog). | `python data/scripts/seed_database.py` |
 | **`test_recommendation.py`** | Tests recommendation score formula (60/40 quality vs popularity) & live database re-ranking. | `python data/scripts/test_recommendation.py` |
 | **`test_db_connection.py`** | Verifies database connectivity to Supabase and checks active extensions. | `python data/scripts/test_db_connection.py` |
 

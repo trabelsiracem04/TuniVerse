@@ -6,8 +6,7 @@ const api = axios.create({
 });
 
 export const placesApi = {
-  // limit=100 is the API max. With 1807 places in the DB, unfiltered queries
-  // return the top 100 by recommendation_score — good enough for the MVP map.
+  // Returns top 100 places by recommendation score
   getPlaces: (filters: Partial<PlaceFilters>, limit = 100, offset = 0) =>
     api
       .get<PlacesResponse>("/places", {
